@@ -17,3 +17,21 @@ socket.on('connect', function(){
 socket.on('ok_signin', function(){
   console.log("Successfully signed in!");
 });
+
+
+
+
+
+const humanBoard = (board) => {
+  var outputBoard = '\nA B C D E F G H'
+
+  for(var i=0; i<board.length; i++){
+    if(i%8 === 0){
+      outputBoard += '\n'
+    }
+
+    outputBoard += board[i] + ' '
+  }
+
+  return outputBoard
+}
