@@ -18,7 +18,9 @@ socket.on('ok_signin', function(){
   console.log("Successfully signed in!");
 });
 
-
+function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
 
 
 
