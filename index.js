@@ -1,8 +1,9 @@
 import io from 'socket.io-client'
+import { randomValidMove, simpleMinimax } from './minimax.js'
 
 
-const socket = io('http://localhost:4000')
-//const socket = io('http://192.168.1.148:4000')
+//const socket = io('http://localhost:4000')
+const socket = io('http://192.168.1.148:4000')
 
 socket.on('connect', function(){
   console.log('On connect')
