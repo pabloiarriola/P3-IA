@@ -1,3 +1,59 @@
+const _ = require('underscore')
+
+const UP = 0
+const DOWN = 1
+const LEFT = 2
+const RIGHT = 3
+const UPRIGHT = 4
+const UPLEFT = 5
+const DOWNRIGHT = 6
+const DOWNLEFT = 7
+const ALLDIRECTIONS = [UP, DOWN, LEFT, RIGHT, UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT]
+const HALFDIRECTIONS = [UP, RIGHT, UPRIGHT, UPLEFT]
+
+const STABLE = 1
+const SEMISTABLE = 0
+const UNSTABLE = -1
+
+const MAXIMIZER = 1
+const MINIMIZER = 2
+
+// const exampleBoard = [
+//   2,2,2,2,2,2,2,2,
+//   1,2,1,1,1,1,1,1,
+//   0,1,2,1,1,2,1,1,
+//   1,1,1,2,2,2,1,1,
+//   1,2,1,2,1,2,1,1,
+//   1,1,2,2,2,1,2,2,
+//   1,2,1,1,1,1,0,2,
+//   1,2,1,1,1,2,2,2
+// ]
+
+const exampleBoard = [
+  0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,
+  0,0,0,2,1,0,0,0,
+  0,0,0,1,2,0,0,0,
+  0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0
+]
+
+const humanBoard = (board) => {
+  var outputBoard = '\nA B C D E F G H'
+
+  for(var i=0; i<board.length; i++){
+    if(i%8 === 0){
+      outputBoard += '\n'
+    }
+
+    outputBoard += board[i] + ' '
+  }
+
+  return outputBoard
+}
+
 export const randomValidMove = (board, player) => {
   // console.log('Calling randomValidMove with board', board, 'player', player)
   const possibleMoves = validMoves(parseBoard(board), player)
