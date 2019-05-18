@@ -107,6 +107,30 @@ const validMoves = (board, player) => {
   return validMoves
 }
 
+/*
+
+minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, depth) => (value, maybe move)
+
+minimax(board, maxPlayer, minPlayer, alpha, beta, mode, depth):
+  Obtener movimientos validos para el maxPlayer
+  Si no hay movimientos validos
+    Si el oponente tiene movimientos validos, llamar a minimax con el mismo depth pero cambiando el modo
+    Si el oponente no tiene movimientos validos, calcular heuristica dependiendo del modo del tablero actual y retornar valor con movimiento null
+  Si hay movimientos validos
+    Inicializar valor de nodo como el peor, dependiendo del modo
+    Para cada movimiento valido
+      Comparar el valor del nodo con alpha o beta, dependiendo del modo, para ver si se puede saltar ésta iteración
+      Obtener el tablero luego de poner la pieza
+      Si depth no es 0
+        Llamar a minimax con el nuevo tablero y nuevos alpha y beta, volteando el modo y restando 1 de depth
+      Si depth es 0
+        Calcular la heuristica del tablero, dependiendo del modo
+      Actualizar alpha o beta y el valor del nodo con el movimiento correspondiente, dependiendo si corresponde dependiendo del modo
+    Return valor de nodo con el movimiento correspondiente
+
+minimax(board, maxPlayer, minPlayer, -Infinity, Infinity, MAXIMIZER, 5)
+
+*/
 
 
 export const minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, parentMode, depth) => {
