@@ -223,3 +223,19 @@ export const minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, parentMo
     return [nodeValue, nodeMove]
   }
 }
+
+
+
+const opponent = (id) => {
+  if(id === 1){
+    return 2
+  } else {
+    return 1
+  }
+}
+
+export const simpleMinimax = (board, maxPlayer) => positionToServerInt(minimax(parseBoard(board), maxPlayer, opponent(maxPlayer), -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 5)[1])
+
+
+// const minimaxResponse = minimax(parseBoard(exampleBoard), 1, 2, -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 1)
+// console.log('minimax', minimaxResponse[0], minimaxResponse[1], positionToServerInt(minimaxResponse[1]))
