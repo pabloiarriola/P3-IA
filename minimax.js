@@ -107,164 +107,27 @@ const validMoves = (board, player) => {
   return validMoves
 }
 
-/*
+const cornersHeuristic = (board, maxPlayer, minPlayer) => {
+  const corners = [[0,0], [0,7], [7,7], [7,0]]
+  let maxPlayerPotentialCorners = 0
+  let minPlayerPotentialCorners = 0
+  corners.map((corner) => {
+    if(board[corner[0]][corner[1]] == maxPlayer){
+      maxPlayerPotentialCorners = maxPlayerPotentialCorners + 1
+    } else {
+      if(board[corner[0]][corner[1]] == minPlayer){
+        minPlayerPotentialCorners = minPlayerPotentialCorners + 1
+      }
+    }
+  })
 
-minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, depth) => (value, maybe move)
-
-minimax(board, maxPlayer, minPlayer, alpha, beta, mode, depth):
-  Obtener movimientos validos para el maxPlayer
-  Si no hay movimientos validos
-    Si el oponente tiene movimientos validos, llamar a minimax con el mismo depth pero cambiando el modo
-    Si el oponente no tiene movimientos validos, calcular heuristica dependiendo del modo del tablero actual y retornar valor con movimiento null
-  Si hay movimientos validos
-    Inicializar valor de nodo como el peor, dependiendo del modo
-    Para cada movimiento valido
-      Comparar el valor del nodo con alpha o beta, dependiendo del modo, para ver si se puede saltar ésta iteración
-      Obtener el tablero luego de poner la pieza
-      Si depth no es 0
-        Llamar a minimax con el nuevo tablero y nuevos alpha y beta, volteando el modo y restando 1 de depth
-      Si depth es 0
-        Calcular la heuristica del tablero, dependiendo del modo
-      Actualizar alpha o beta y el valor del nodo con el movimiento correspondiente, dependiendo si corresponde dependiendo del modo
-    Return valor de nodo con el movimiento correspondiente
-
-minimax(board, maxPlayer, minPlayer, -Infinity, Infinity, MAXIMIZER, 5)
-
-*/
-
-
-export const minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, parentMode, depth) => {
-  // console.log('#####################################################################', mode)
-  // console.log('depth', depth, 'mode', mode, 'parentMode', parentMode)
-  // console.log('board\n', board)
-  // Get valid moves for current player
-  let nodeMoves
-  if(mode === MAXIMIZER){
-    nodeMoves = validMoves(board, maxPlayer)
+  if(maxPlayerPotentialCorners + minPlayerPotentialCorners != 0){
+    return 100 * (maxPlayerPotentialCorners - minPlayerPotentialCorners) / (maxPlayerPotentialCorners + minPlayerPotentialCorners)
   } else {
-    nodeMoves = validMoves(board, minPlayer)
-  }
-
-  // console.log('nodeMoves', nodeMoves)
-
-  if(nodeMoves.length === 0){
-    // If there isnt validMoves for current player
-    // Check if opponent has validMoves
-    let opponentMoves
-    if(mode === MAXIMIZER){
-      opponentMoves = validMoves(board, minPlayer)
-    } else {
-      opponentMoves = validMoves(board, maxPlayer)
-    }
-    if(opponentMoves.length === 0){
-      // If opponent doesnt have validMoves, then we have reached a leaf in the tree, calculate heuristic and return with null move
-      return [heuristic(board, maxPlayer, minPlayer), -1]
-    } else {
-      // If opponent have validMoves, then call minimax changing the mode and keeping the depth
-      return minimax(board, maxPlayer, minPlayer, alpha, beta, oppositeMinimaxMode(mode), mode, depth)
-    }
-  } else {
-    // If current player have validMoves
-    // Initialize node value as the worst, depending on the mode
-    let nodeValue
-    let nodeMove
-    let nodeAlpha = alpha
-    let nodeBeta = beta
-    if(mode === MAXIMIZER){
-      nodeValue = -Infinity
-      nodeMove = -1
-    } else {
-      nodeValue = Infinity
-      nodeMove = -1
-    }
-
-    for(let i=0; i<nodeMoves.length; i++){
-      // For every valid move
-      // Compare nodeValue with nodeAlpha or nodeBeta (depending on the mode and parentMode) to see if we can skip this iteration
-      if(parentMode === MINIMIZER && mode === MAXIMIZER){
-        // If mode is a maximizer and parentMode is a minimizer, if parentNode can already can achieve a lower value in another move, then skip this exploration
-        // Because the maximizer will always take the higher value
-        if(nodeValue > nodeBeta){
-          // console.log('PRUNING')
-          continue
-        }
-      }
-
-      if(parentMode === MAXIMIZER && mode === MINIMIZER){
-        // If mode is a minimizer and parentMode is a maximizer, if parentNode can already can achieve a higher value in another move, then skip this exploration
-        // Because the minimizer will always take the lower value
-        if(nodeValue < nodeAlpha){
-          // console.log('PRUNING')
-          continue
-        }
-      }
-
-      // Get board after playing the move
-      let newBoard
-      if(mode === MAXIMIZER){
-        newBoard = playMove(board, nodeMoves[i], maxPlayer)
-      } else {
-        newBoard = playMove(board, nodeMoves[i], minPlayer)
-      }
-      // console.log('newBoard', newBoard)
-
-      let moveValue
-      if(depth !== 0){
-        // If depth isnt 0
-        // Call minimax with the newBoard, updated nodeAlpha and nodeBeta, switching modes and decreasing 1 to the depth
-        moveValue = minimax(newBoard, maxPlayer, minPlayer, nodeAlpha, nodeBeta, oppositeMinimaxMode(mode), mode, depth - 1)
-      } else {
-        // If depth is 0
-        // Calculate heuristic of the newBoard
-        // console.log('heuristic value', heuristic(newBoard, maxPlayer, minPlayer))
-        moveValue = [heuristic(newBoard, maxPlayer, minPlayer), nodeMoves[i]]
-      }
-
-      // Update nodeValue, nodeMode, nodeAlpha and nodeBeta, depending on the mode
-      if(mode === MAXIMIZER){
-        if(moveValue[0] > nodeValue){
-          // console.log('UPDATING MAXIMIZER')
-          // console.log('previous value', nodeValue, 'new value', moveValue[0])
-          nodeValue = moveValue[0]
-          nodeMove = nodeMoves[i]
-          if(moveValue[0] > nodeAlpha){
-            nodeAlpha = moveValue[0]
-          }
-        }
-      } else {
-        if(moveValue[0] < nodeValue){
-          // console.log('UPDATING MINIMIZER')
-          // console.log('previous value', nodeValue, 'new value', moveValue[0])
-          nodeValue = moveValue[0]
-          nodeMove = nodeMoves[i]
-          if(moveValue[0] < nodeBeta){
-            nodeBeta = moveValue[0]
-          }
-        }
-      }
-    }
-
-    return [nodeValue, nodeMove]
+    return 0
   }
 }
-
-
-
-const opponent = (id) => {
-  if(id === 1){
-    return 2
-  } else {
-    return 1
-  }
-}
-
-export const simpleMinimax = (board, maxPlayer) => positionToServerInt(minimax(parseBoard(board), maxPlayer, opponent(maxPlayer), -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 5)[1])
-
-
-// const minimaxResponse = minimax(parseBoard(exampleBoard), 1, 2, -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 1)
-// console.log('minimax', minimaxResponse[0], minimaxResponse[1], positionToServerInt(minimaxResponse[1]))
-
-
+// console.log('cornersHeuristic 1', cornersHeuristic(parseBoard(exampleBoard), 1, 2))
 
 const stabilityHeuristic = (board, maxPlayer, minPlayer) => {
   // For every coin
@@ -426,6 +289,164 @@ const oppositeMinimaxMode = (mode) => {
   }
 }
 
+export const randomValidMove = (board, player) => {
+  // console.log('Calling randomValidMove with board', board, 'player', player)
+  const possibleMoves = validMoves(parseBoard(board), player)
+  // console.log('possibleMoves', possibleMoves)
+  return positionToServerInt(possibleMoves[_.random(possibleMoves.length - 1)])
+}
 
 
+/*
 
+minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, depth) => (value, maybe move)
+
+minimax(board, maxPlayer, minPlayer, alpha, beta, mode, depth):
+  Obtener movimientos validos para el maxPlayer
+  Si no hay movimientos validos
+    Si el oponente tiene movimientos validos, llamar a minimax con el mismo depth pero cambiando el modo
+    Si el oponente no tiene movimientos validos, calcular heuristica dependiendo del modo del tablero actual y retornar valor con movimiento null
+  Si hay movimientos validos
+    Inicializar valor de nodo como el peor, dependiendo del modo
+    Para cada movimiento valido
+      Comparar el valor del nodo con alpha o beta, dependiendo del modo, para ver si se puede saltar ésta iteración
+      Obtener el tablero luego de poner la pieza
+      Si depth no es 0
+        Llamar a minimax con el nuevo tablero y nuevos alpha y beta, volteando el modo y restando 1 de depth
+      Si depth es 0
+        Calcular la heuristica del tablero, dependiendo del modo
+      Actualizar alpha o beta y el valor del nodo con el movimiento correspondiente, dependiendo si corresponde dependiendo del modo
+    Return valor de nodo con el movimiento correspondiente
+
+minimax(board, maxPlayer, minPlayer, -Infinity, Infinity, MAXIMIZER, 5)
+
+*/
+
+export const minimax = (board, maxPlayer, minPlayer, alpha, beta, mode, parentMode, depth) => {
+  // console.log('#####################################################################', mode)
+  // console.log('depth', depth, 'mode', mode, 'parentMode', parentMode)
+  // console.log('board\n', board)
+  // Get valid moves for current player
+  let nodeMoves
+  if(mode === MAXIMIZER){
+    nodeMoves = validMoves(board, maxPlayer)
+  } else {
+    nodeMoves = validMoves(board, minPlayer)
+  }
+
+  // console.log('nodeMoves', nodeMoves)
+
+  if(nodeMoves.length === 0){
+    // If there isnt validMoves for current player
+    // Check if opponent has validMoves
+    let opponentMoves
+    if(mode === MAXIMIZER){
+      opponentMoves = validMoves(board, minPlayer)
+    } else {
+      opponentMoves = validMoves(board, maxPlayer)
+    }
+    if(opponentMoves.length === 0){
+      // If opponent doesnt have validMoves, then we have reached a leaf in the tree, calculate heuristic and return with null move
+      return [heuristic(board, maxPlayer, minPlayer), -1]
+    } else {
+      // If opponent have validMoves, then call minimax changing the mode and keeping the depth
+      return minimax(board, maxPlayer, minPlayer, alpha, beta, oppositeMinimaxMode(mode), mode, depth)
+    }
+  } else {
+    // If current player have validMoves
+    // Initialize node value as the worst, depending on the mode
+    let nodeValue
+    let nodeMove
+    let nodeAlpha = alpha
+    let nodeBeta = beta
+    if(mode === MAXIMIZER){
+      nodeValue = -Infinity
+      nodeMove = -1
+    } else {
+      nodeValue = Infinity
+      nodeMove = -1
+    }
+
+    for(let i=0; i<nodeMoves.length; i++){
+      // For every valid move
+      // Compare nodeValue with nodeAlpha or nodeBeta (depending on the mode and parentMode) to see if we can skip this iteration
+      if(parentMode === MINIMIZER && mode === MAXIMIZER){
+        // If mode is a maximizer and parentMode is a minimizer, if parentNode can already can achieve a lower value in another move, then skip this exploration
+        // Because the maximizer will always take the higher value
+        if(nodeValue > nodeBeta){
+          // console.log('PRUNING')
+          continue
+        }
+      }
+
+      if(parentMode === MAXIMIZER && mode === MINIMIZER){
+        // If mode is a minimizer and parentMode is a maximizer, if parentNode can already can achieve a higher value in another move, then skip this exploration
+        // Because the minimizer will always take the lower value
+        if(nodeValue < nodeAlpha){
+          // console.log('PRUNING')
+          continue
+        }
+      }
+
+      // Get board after playing the move
+      let newBoard
+      if(mode === MAXIMIZER){
+        newBoard = playMove(board, nodeMoves[i], maxPlayer)
+      } else {
+        newBoard = playMove(board, nodeMoves[i], minPlayer)
+      }
+      // console.log('newBoard', newBoard)
+
+      let moveValue
+      if(depth !== 0){
+        // If depth isnt 0
+        // Call minimax with the newBoard, updated nodeAlpha and nodeBeta, switching modes and decreasing 1 to the depth
+        moveValue = minimax(newBoard, maxPlayer, minPlayer, nodeAlpha, nodeBeta, oppositeMinimaxMode(mode), mode, depth - 1)
+      } else {
+        // If depth is 0
+        // Calculate heuristic of the newBoard
+        // console.log('heuristic value', heuristic(newBoard, maxPlayer, minPlayer))
+        moveValue = [heuristic(newBoard, maxPlayer, minPlayer), nodeMoves[i]]
+      }
+
+      // Update nodeValue, nodeMode, nodeAlpha and nodeBeta, depending on the mode
+      if(mode === MAXIMIZER){
+        if(moveValue[0] > nodeValue){
+          // console.log('UPDATING MAXIMIZER')
+          // console.log('previous value', nodeValue, 'new value', moveValue[0])
+          nodeValue = moveValue[0]
+          nodeMove = nodeMoves[i]
+          if(moveValue[0] > nodeAlpha){
+            nodeAlpha = moveValue[0]
+          }
+        }
+      } else {
+        if(moveValue[0] < nodeValue){
+          // console.log('UPDATING MINIMIZER')
+          // console.log('previous value', nodeValue, 'new value', moveValue[0])
+          nodeValue = moveValue[0]
+          nodeMove = nodeMoves[i]
+          if(moveValue[0] < nodeBeta){
+            nodeBeta = moveValue[0]
+          }
+        }
+      }
+    }
+
+    return [nodeValue, nodeMove]
+  }
+}
+
+const opponent = (id) => {
+  if(id === 1){
+    return 2
+  } else {
+    return 1
+  }
+}
+
+export const simpleMinimax = (board, maxPlayer) => positionToServerInt(minimax(parseBoard(board), maxPlayer, opponent(maxPlayer), -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 5)[1])
+
+
+// const minimaxResponse = minimax(parseBoard(exampleBoard), 1, 2, -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 1)
+// console.log('minimax', minimaxResponse[0], minimaxResponse[1], positionToServerInt(minimaxResponse[1]))
