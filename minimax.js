@@ -263,3 +263,169 @@ export const simpleMinimax = (board, maxPlayer) => positionToServerInt(minimax(p
 
 // const minimaxResponse = minimax(parseBoard(exampleBoard), 1, 2, -Infinity, Infinity, MAXIMIZER, MAXIMIZER, 1)
 // console.log('minimax', minimaxResponse[0], minimaxResponse[1], positionToServerInt(minimaxResponse[1]))
+
+
+
+const stabilityHeuristic = (board, maxPlayer, minPlayer) => {
+  // For every coin
+    // Check if stable
+      // stabilities = []
+      // For half directions
+        // firstBound = Go in direction until encounter a minPlayer coin or empty space or end-of-board
+        // secondBound = Go in opposite direction until encounter a minPlayer coin or empty space or end-of-board
+        // if((firstBound == minPlayer && secondBound == emptySpace) || (firstBound == empty && secondBound == minPlayer)){stabilities.push(UNSTABLE)}
+        // else if((firstBound === end-of-board) && (secondBound === end-of-board)){stabilities.push(STABLE)}
+        // else if((firstBound == minPlayer && secondBound == end-of-board) || (firstBound == end-of-board && secondBound == minPlayer)){stabilities.push(STABLE)}
+        // else if((firstBound == minPlayer && secondBound == minPlayer)){stabilities.push(STABLE)}
+        // else stabilities.push(SEMISTABLE)
+      // coinStability = min(stabilities)
+
+  let maxPlayerStability = 0
+  let minPlayerStability = 0
+  for(let y=0; y<board.length; y++){
+    for(let x=0; x<board[0].length; x++){
+      if(board[y][x] === maxPlayer){
+        let stabilities = []
+        HALFDIRECTIONS.map((direction) => {
+          let firstBound
+          let secondBound
+          let firstBoundPosition = move([y, x], direction)
+          while(firstBoundPosition !== null && board[firstBoundPosition[0]][firstBoundPosition[1]] !== 0 && board[firstBoundPosition[0]][firstBoundPosition[1]] !== minPlayer){
+            firstBoundPosition = move(firstBoundPosition, direction)
+          }
+          let secondBoundPosition = move([y, x], oppositeDirection(direction))
+          while(secondBoundPosition !== null && board[secondBoundPosition[0]][secondBoundPosition[1]] !== 0 && board[secondBoundPosition[0]][secondBoundPosition[1]] !== minPlayer){
+            secondBoundPosition = move(secondBoundPosition, oppositeDirection(direction))
+          }
+
+          if(firstBoundPosition !== null && secondBoundPosition !== null){
+            if((board[firstBoundPosition[0]][firstBoundPosition[1]] == minPlayer && board[secondBoundPosition[0]][secondBoundPosition[1]] == 0) || (board[firstBoundPosition[0]][firstBoundPosition[1]] == 0 && board[secondBoundPosition[0]][secondBoundPosition[1]] == minPlayer)){
+              stabilities.push(UNSTABLE)
+            } else {
+              if(board[firstBoundPosition[0]][firstBoundPosition[1]] == minPlayer && board[secondBoundPosition[0]][secondBoundPosition[1]] == minPlayer){
+                stabilities.push(STABLE)
+              } else {
+                stabilities.push(SEMISTABLE)
+              }
+            }
+          } else {
+            stabilities.push(STABLE)
+          }
+        })
+        // console.log('maxPlayerStabilities', stabilities)
+        maxPlayerStability += _.min(stabilities)
+      } else {
+        if(board[y][x] === minPlayer){
+          let stabilities = []
+          HALFDIRECTIONS.map((direction) => {
+            let firstBound
+            let secondBound
+            let firstBoundPosition = move([y, x], direction)
+            while(firstBoundPosition !== null && board[firstBoundPosition[0]][firstBoundPosition[1]] !== 0 && board[firstBoundPosition[0]][firstBoundPosition[1]] !== maxPlayer){
+              firstBoundPosition = move(firstBoundPosition, direction)
+            }
+            let secondBoundPosition = move([y, x], oppositeDirection(direction))
+            while(secondBoundPosition !== null && board[secondBoundPosition[0]][secondBoundPosition[1]] !== 0 && board[secondBoundPosition[0]][secondBoundPosition[1]] !== maxPlayer){
+              secondBoundPosition = move(secondBoundPosition, oppositeDirection(direction))
+            }
+
+            if(firstBoundPosition !== null && secondBoundPosition !== null){
+              if((board[firstBoundPosition[0]][firstBoundPosition[1]] == maxPlayer && board[secondBoundPosition[0]][secondBoundPosition[1]] == 0) || (board[firstBoundPosition[0]][firstBoundPosition[1]] == 0 && board[secondBoundPosition[0]][secondBoundPosition[1]] == maxPlayer)){
+                stabilities.push(UNSTABLE)
+              } else {
+                if(board[firstBoundPosition[0]][firstBoundPosition[1]] == maxPlayer && board[secondBoundPosition[0]][secondBoundPosition[1]] == maxPlayer){
+                  stabilities.push(STABLE)
+                } else {
+                  stabilities.push(SEMISTABLE)
+                }
+              }
+            } else {
+              stabilities.push(STABLE)
+            }
+          })
+          // console.log('minPlayerStabilities', stabilities)
+          minPlayerStability += _.min(stabilities)
+        }
+      }
+    }
+  }
+  // console.log('maxPlayerStability', maxPlayerStability)
+  // console.log('minPlayerStability', minPlayerStability)
+
+  if(maxPlayerStability + minPlayerStability != 0){
+    return 100 * (maxPlayerStability - minPlayerStability) / (maxPlayerStability + minPlayerStability)
+  } else {
+    return 0
+  }
+}
+// console.log('stabilityHeuristic 1', stabilityHeuristic(parseBoard(exampleBoard), 1, 2))
+
+const heuristic = (board, maxPlayer, minPlayer) => {
+  // console.log('coinParityHeuristic', coinParityHeuristic(board, maxPlayer, minPlayer))
+  // console.log('mobilityHeuristic', mobilityHeuristic(board, maxPlayer, minPlayer))
+  // console.log('cornersHeuristic', cornersHeuristic(board, maxPlayer, minPlayer))
+  // console.log('stabilityHeuristic', stabilityHeuristic(board, maxPlayer, minPlayer))
+  return (25*coinParityHeuristic(board, maxPlayer, minPlayer) + 5*mobilityHeuristic(board, maxPlayer, minPlayer) + 30*cornersHeuristic(board, maxPlayer, minPlayer) + 25*stabilityHeuristic(board, maxPlayer, minPlayer))/85
+}
+
+// 50000 boards in 5.41s ~ Approx 4 levels down considering branching factor of 10 (Regularly the max for Reversi)
+// for(let i=0; i<50000; i++){
+//   heuristic(exampleBoard, 1, 2) 
+// }
+
+// const minimax()
+
+const playMove = (board, movePosition, player) => {
+  // console.log('Player playing', player)
+  // console.log('player', player, 'move', movePosition)
+  // console.log('Input board', board)
+  // Calculate opponent
+  let copiedBoard = []
+  for(let yi=0; yi<board.length; yi++){
+    copiedBoard.push([])
+    for(let xi=0; xi<board[0].length; xi++){
+      copiedBoard[yi].push(board[yi][xi])
+    }
+  }
+
+  const opponent = player === 1 ? 2 : 1
+
+  // Place coin
+  copiedBoard[movePosition[0]][movePosition[1]] = player
+
+  // Flip coins
+  ALLDIRECTIONS.map((direction) => {
+    let coinsToBeFlipped = []
+    let tempPosition = move(movePosition, direction)
+    while(tempPosition !== null && copiedBoard[tempPosition[0]][tempPosition[1]] !== 0){
+      if(copiedBoard[tempPosition[0]][tempPosition[1]] === opponent){
+        coinsToBeFlipped.push(tempPosition)
+      } else {
+        if(copiedBoard[tempPosition[0]][tempPosition[1]] === player){
+          if(coinsToBeFlipped.length !== 0){
+            coinsToBeFlipped.map((position) => {
+              copiedBoard[position[0]][position[1]] = player
+            })
+            break
+          }
+        }
+      }
+      tempPosition = move(tempPosition, direction)
+    }
+  })
+
+  // console.log('Output copiedBoard', copiedBoard)
+  return copiedBoard
+}
+
+const oppositeMinimaxMode = (mode) => {
+  if(mode === MAXIMIZER){
+    return MINIMIZER
+  } else {
+    return MAXIMIZER
+  }
+}
+
+
+
+
