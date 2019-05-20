@@ -107,6 +107,20 @@ const validMoves = (board, player) => {
   return validMoves
 }
 
+const mobilityHeuristic = (board, maxPlayer, minPlayer) => {
+  const maxPlayerPotentialMoves = validMoves(board, maxPlayer).length
+  const minPlayerPotentialMoves = validMoves(board, minPlayer).length
+  // console.log('maxPlayerPotentialMoves', maxPlayerPotentialMoves)
+  // console.log('minPlayerPotentialMoves', minPlayerPotentialMoves)
+  if(maxPlayerPotentialMoves + minPlayerPotentialMoves != 0){
+    return 100 * (maxPlayerPotentialMoves - minPlayerPotentialMoves) / (maxPlayerPotentialMoves + minPlayerPotentialMoves)
+  } else {
+    return 0
+  }
+}
+
+// console.log('mobilityHeuristic 1', mobilityHeuristic(parseBoard(exampleBoard), 1, 2))
+
 const cornersHeuristic = (board, maxPlayer, minPlayer) => {
   const corners = [[0,0], [0,7], [7,7], [7,0]]
   let maxPlayerPotentialCorners = 0
