@@ -107,6 +107,31 @@ const validMoves = (board, player) => {
   return validMoves
 }
 
+// This heuristic takes a flat board
+const coinParityHeuristic = (board, maxPlayer, minPlayer) => {
+  const flatBoard = _.flatten(board)
+  const count = _.countBy(flatBoard, (position) => {
+    if(position === 1){
+      return 1
+    } else {
+      if(position === 2){
+        return 2
+      } else {
+        return 0
+      }
+    }
+  })
+  if(count[maxPlayer] + count[minPlayer] != 0){
+    return 100 * (count[maxPlayer] - count[minPlayer]) / (count[maxPlayer] + count[minPlayer])
+  } else {
+    return 0
+  }
+}
+
+// console.log('coinParityHeuristic 1', coinParityHeuristic(exampleBoard, 1, 2))
+// console.log('coinParityHeuristic', coinParityHeuristic(exampleBoard, 2, 1))
+
+
 const mobilityHeuristic = (board, maxPlayer, minPlayer) => {
   const maxPlayerPotentialMoves = validMoves(board, maxPlayer).length
   const minPlayerPotentialMoves = validMoves(board, minPlayer).length
