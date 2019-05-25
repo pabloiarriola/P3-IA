@@ -1,5 +1,3 @@
-const _ = require('underscore')
-
 const UP = 0
 const DOWN = 1
 const LEFT = 2
@@ -53,6 +51,108 @@ const humanBoard = (board) => {
 
   return outputBoard
 }
+
+const oppositeDirection = (direction) => {
+  switch(direction){
+    case UP: {
+      return DOWN
+    }
+    case DOWN: {
+      return UP
+    }
+    case RIGHT: {
+      return LEFT
+    }
+    case LEFT: {
+      return RIGHT
+    }
+    case UPRIGHT: {
+      return DOWNLEFT
+    }
+    case UPLEFT: {
+      return DOWNRIGHT
+    }
+    case DOWNRIGHT: {
+      return UPLEFT
+    }
+    case DOWNLEFT: {
+      return UPRIGHT
+    }
+  }
+}
+
+const move = (position, direction) => {
+  switch(direction){
+    case UP: {
+      if((position[0]-1) >= 0){
+        return [position[0]-1, position[1]]
+      } else {
+        return null
+      }
+    }
+    case DOWN: {
+      if((position[0]+1) <= 7){
+        return [position[0]+1, position[1]]
+      } else {
+        return null
+      }
+    }
+    case RIGHT: {
+      if((position[1]+1) <= 7){
+        return [position[0], position[1]+1]
+      } else {
+        return null
+      }
+    }
+    case LEFT: {
+      if((position[1]-1) >= 0){
+        return [position[0], position[1]-1]
+      } else {
+        return null
+      }
+    }
+    case UPRIGHT: {
+      if((position[0]-1) >= 0 && (position[1]+1) <= 7){
+        return [position[0]-1, position[1]+1]
+      } else {
+        return null
+      }
+    }
+    case UPLEFT: {
+      if((position[0]-1) >= 0 && (position[1]-1) >= 0){
+        return [position[0]-1, position[1]-1]
+      } else {
+        return null
+      }
+    }
+    case DOWNRIGHT: {
+      if((position[0]+1) <= 7 && (position[1]+1) <= 7){
+        return [position[0]+1, position[1]+1]
+      } else {
+        return null
+      }
+    }
+    case DOWNLEFT: {
+      if((position[0]+1) <= 7 && (position[1]-1) >= 0){
+        return [position[0]+1, position[1]-1]
+      } else {
+        return null
+      }
+    }
+  }
+}
+
+const parseBoard = (sourceBoard) => ([
+  sourceBoard.slice(0,8),
+  sourceBoard.slice(8,16),
+  sourceBoard.slice(16,24),
+  sourceBoard.slice(24,32),
+  sourceBoard.slice(32,40),
+  sourceBoard.slice(40,48),
+  sourceBoard.slice(48,56),
+  sourceBoard.slice(56,64)
+])
+// console.log('parsedBoard', parseBoard(exampleBoard))
 
 export const randomValidMove = (board, player) => {
   // console.log('Calling randomValidMove with board', board, 'player', player)
