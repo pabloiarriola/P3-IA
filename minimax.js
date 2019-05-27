@@ -154,13 +154,66 @@ const parseBoard = (sourceBoard) => ([
 ])
 // console.log('parsedBoard', parseBoard(exampleBoard))
 
-export const randomValidMove = (board, player) => {
-  // console.log('Calling randomValidMove with board', board, 'player', player)
-  const possibleMoves = validMoves(parseBoard(board), player)
-  // console.log('possibleMoves', possibleMoves)
-  return positionToServerInt(possibleMoves[_.random(possibleMoves.length - 1)])
+const checkNeighbor = (board, position, direction) => {
+  switch(direction){
+    case UP: {
+      if((position[0]-1) >= 0){
+        return board[position[0]-1][position[1]]
+      } else {
+        return -1
+      }
+    }
+    case DOWN: {
+      if((position[0]+1) <= 7){
+        return board[position[0]+1][position[1]]
+      } else {
+        return -1
+      }
+    }
+    case RIGHT: {
+      if((position[1]+1) <= 7){
+        return board[position[0]][position[1]+1]
+      } else {
+        return -1
+      }
+    }
+    case LEFT: {
+      if((position[1]-1) >= 0){
+        return board[position[0]][position[1]-1]
+      } else {
+        return -1
+      }
+    }
+    case UPRIGHT: {
+      if((position[0]-1) >= 0 && (position[1]+1) <= 7){
+        return board[position[0]-1][position[1]+1]
+      } else {
+        return -1
+      }
+    }
+    case UPLEFT: {
+      if((position[0]-1) >= 0 && (position[1]-1) >= 0){
+        return board[position[0]-1][position[1]-1]
+      } else {
+        return -1
+      }
+    }
+    case DOWNRIGHT: {
+      if((position[0]+1) <= 7 && (position[1]+1) <= 7){
+        return board[position[0]+1][position[1]+1]
+      } else {
+        return -1
+      }
+    }
+    case DOWNLEFT: {
+      if((position[0]+1) <= 7 && (position[1]-1) >= 0){
+        return board[position[0]+1][position[1]-1]
+      } else {
+        return -1
+      }
+    }
+  }
 }
-
 
 const validPosition = (position, validMoves) => {
   // console.log('Running')
@@ -171,6 +224,8 @@ const validPosition = (position, validMoves) => {
   }
   return false
 }
+
+const positionToServerInt = (position) => (position[0]*8+position[1])
 
 
 const validMoves = (board, player) => {
@@ -207,6 +262,11 @@ const validMoves = (board, player) => {
   return validMoves
 }
 
+
+// console.log('validMoves 1', validMoves(parseBoard(exampleBoard), 1))
+// console.log('validMoves 2', validMoves(parseBoard(exampleBoard), 2))
+// console.log('serverInt', positionToServerInt([7, 7]))
+
 // This heuristic takes a flat board
 const coinParityHeuristic = (board, maxPlayer, minPlayer) => {
   const flatBoard = _.flatten(board)
@@ -231,7 +291,6 @@ const coinParityHeuristic = (board, maxPlayer, minPlayer) => {
 // console.log('coinParityHeuristic 1', coinParityHeuristic(exampleBoard, 1, 2))
 // console.log('coinParityHeuristic', coinParityHeuristic(exampleBoard, 2, 1))
 
-
 const mobilityHeuristic = (board, maxPlayer, minPlayer) => {
   const maxPlayerPotentialMoves = validMoves(board, maxPlayer).length
   const minPlayerPotentialMoves = validMoves(board, minPlayer).length
@@ -245,6 +304,7 @@ const mobilityHeuristic = (board, maxPlayer, minPlayer) => {
 }
 
 // console.log('mobilityHeuristic 1', mobilityHeuristic(parseBoard(exampleBoard), 1, 2))
+
 
 const cornersHeuristic = (board, maxPlayer, minPlayer) => {
   const corners = [[0,0], [0,7], [7,7], [7,0]]
