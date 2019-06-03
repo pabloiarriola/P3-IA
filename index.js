@@ -9,7 +9,7 @@ socket.on('connect', function(){
   console.log('On connect')
   socket.emit('signin', {
     user_name: "PabloArriola",
-    tournament_id: 12,
+    tournament_id: 142857,
     user_role: 'player'
   });
 });
@@ -46,7 +46,7 @@ socket.on('ready', function(data){
 
   socket.emit('play', {
     player_turn_id: playerID,
-    tournament_id: 12,
+    tournament_id: 142857,
     game_id: data.game_id,
     movement: move
   });
@@ -64,7 +64,7 @@ socket.on('finish', function(data) {
   // Start again!
 
   socket.emit('player_ready', {
-    tournament_id: 12,
+    tournament_id: 142857,
     game_id: data.game_id,
     player_turn_id: data.player_turn_id
   });
