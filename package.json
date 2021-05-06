@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "socket.io-client": "^2.1.0",
-    "underscore": "^1.9.0"
+    "underscore": "^1.12.1"
   }
 }
